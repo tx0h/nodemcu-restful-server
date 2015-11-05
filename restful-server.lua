@@ -35,6 +35,7 @@ function check_suffix(str, suffixes)
 end
 
 function file_exists(filename)
+    return true;
     if(not file.open(filename, 'r')) then
         file.close()
         return false
@@ -91,10 +92,6 @@ function get_payload(request)
         resource = 'index.html'
         local mime = 'text/html'
         return resource, mime, verb
-        --[[
-        local index = loadfile('get_file.lua')
-        return index('index.html')
-        ]]
     end
 
     if(verb == "PUT") then
@@ -134,11 +131,6 @@ function get_payload(request)
         if(not file_exists(resource..'.lua')) then
             return '404 RESOURCE not found', 'text/plain'
         end
-        --[[
-        if(not id) then
-            return "409 DELETE only supports /resource/id", "text/plain"
-        end
-        ]]
         local rest = loadfile(resource .. '.lua')
         if(payload ~= nil) then
             return rest(verb, id, cjson.encode(parseurl(payload)))
@@ -171,17 +163,6 @@ function get_payload(request)
     return payload, 'text/plain'
 end
 
---[[
-function get_file_size(filename)
-    if(not file.open(filename, 'r')) then
-        return(nil)
-    end
-    local size = file.seek("end")
-    file.close()
-    return(size)
-end
-]]
-
 
 function send_file(conn)
     local chunk=file.read(768)
@@ -200,27 +181,12 @@ end
 
 function send_header(conn, status, mime)
     conn:send('HTTP/1.1 '..status..'\r\n')
-    --conn:send('Date: Thu, 01 Jan 1970 00:00:00 GMT\r\n')
-    --conn:send('Server: rest-server\r\n')
-    --conn:send('Content-Length: '..len..'\r\n')
     conn:send('Content-Type: '..mime..'\r\n')
     conn:send("Connection: close\r\n\r\n")
 end
 
 function answer_request(conn, request)
     local payload, mime, verb = get_payload(request)
-    --local len = payload:len()
-    
-    --[[
-    if(verb == 'GET') then
-        len = get_file_size(payload)
-        if(not len) then
-            payload = '404 RESOURCE not found'
-            mime = 'text/plain'
-            len = payload:len()
-        end
-    end
-    ]]
     
     if(verb == 'GET' and mime ~= 'text/plain') then
         if(g_fileFree) then
