@@ -1,0 +1,106 @@
+<html>
+<head>
+<title>I Don't Like Lua</title>
+</head>
+<body>
+<div style="background: #ccc;">
+    <div style="max-width:148px;">
+        <img width="128" src="luadown.png">
+    </div>
+    <div style="margin-left:148px; margin-top:-103px;">
+        <span><h1><i>Hello world!</i></h1></span>
+        <span><h3>Welcome to <b>restful-server</b>, a nodemcu based service.</h3></span>
+    </div>
+</div>
+<div style="max-width:876px; margin-left:148px">
+<p>
+This server understands the http GET, POST, PUT and DELETE verbs.
+These should be sufficient to setup a basic ReST service. The basic
+request syntax follows the http protocol with some limitations.
+Here is what can be handled:
+</p>
+<table>
+<tr><th>request</th><th>comment</th></tr>
+
+<tr><td><nobr>GET / HTTP/1.1</nobr></td>
+<td>
+    <p><b>A)</b> Get the index.html file (this page) downloaded to the client.</p>
+</td></tr>
+
+<tr><td><nobr>GET /<i>resource</i> HTTP/1.1</nobr></td>
+<td>
+    <p><b>B)</b> If <i>resource</i> ends with a known suffix (.html, .svg, .css, .js, .json),
+    it downloads the <i>resource</i> to the client.</p>
+    <p><b>C)</b> If <i>resource</i> has no suffix, the server assumes a ReST service,
+    loads <i>resource</i>.lua as a function and executes it with verb as the first argument.
+    All here defined rest functions shall return a json string and the json mime-type, those
+    will be send to the client.</p>
+</ol></td></tr>
+
+<tr><td><nobr>GET /<i>resource</i>/<i>id</i> HTTP/1.1</nobr></td>
+<td>
+    <p><b>D)</b> Like C) but supplies <i>id</i> as the second argument to the rest function
+    identified as <i>resource</i>.lua .</p>
+</td></tr>
+
+
+<tr><td><nobr>POST /<i>resource</i> HTTP/1.1</nobr></td>
+<td>
+    <p><b>E)</b> Like A) when the resource has the suffix .cgi.
+    But it delivers a payload in the body to the server.
+    The payload has the form: <i>name1=value1&..&nameN=valueN</i> and is URL encoded.
+    Thats standard to all browsers. The payload will be transformed into a json string
+    and will be passed as last argument to the rest function.</p>
+    
+    <p><b>F)</b> Like B) + E)</p>
+</td></tr>
+
+<tr><td><nobr>POST /<i>resource</i>/<i>id</i> HTTP/1.1</nobr></td>
+<td>
+    <p><b>G)</b> Like D) + F)</p>
+</td></tr>
+
+<tr><td><nobr>PUT /<i>resource</i>/<i>id</i> HTTP/1.1</nobr></td>
+<td>
+    <p><b>H)</b> Like G) but the rest function should be implemented idempotent.
+    This means, the rest function should update the the <i>resource</i> identified by <i>id</i>.
+    If the identified resource did not exists, it should create this resource.</p>
+</td></tr>
+
+
+<tr><td><nobr>DELETE /<i>resource</i> HTTP/1.1</nobr></td>
+<td>
+    <p><b>I)</b> This rest function should also implemented idempotent.
+    It should delete all <i>resource</i> based data/.</p>
+</td></tr>
+
+
+<tr><td><nobr>DELETE /<i>resource</i>/<i>id</i> HTTP/1.1</nobr></td>
+<td>
+    <p><b>J)</b> This rest function should also implemented idempotent.
+    It should delete the <i>resource</i> identified by <i>id</i>.</p>
+</td></tr>
+
+</table>
+<p>
+All rest service methods understand appended arguments to the URI, like in
+<i>GET /resource/id?name1=value1&name2=value2 HTTP/1.1</i>. The arguments
+will be passed as a json string to the rest function. If the method has a payload
+in the body, the appended arguments and the ones from the payload will get
+merged into one json string.
+</p>
+<p>
+<b>WARNING!</b> Keep in mind that the ESP8266 has low memory. Huge payloads
+will crash the server easily for sure!
+</p>
+<p>
+Try the test service: <a href="form.html">/rest[/id]</a>
+</p>
+</div>
+<div class="copy">
+&copy; 2015 by tx0h under the <a href="http://dev.perl.org/licenses/artistic.html">
+perl artistic license</a>
+</div>
+</body>
+<link rel="stylesheet" href="style.css">
+</html>

@@ -1,0 +1,157 @@
+<html>
+<head>
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div style="background: #ccc;">
+    <div style="max-width:148px;">
+        <img width="128" src="luadown.png">
+    </div>
+    <div style="margin-left:148px; margin-top:-103px;">
+        <span><h1><i>Hello world!</i></h1></span>
+        <span><h3>Welcome to <b>restful-server</b>, a nodemcu based service.</h3></span>
+    </div>
+</div>
+<div style="max-width:876px; margin-left:148px; min-height:200px;">
+<form id="form" action="/gpio">
+<table id="gpio_tab">
+<tr>
+    <th>gpio label</th>
+    <th>io port</th>
+    <th>ON/OFF</th>
+</tr>
+</table>
+</form>
+<button id='add_gpio'> ADD GPIO </button>
+<button id='submit'> SAVE ALL </button>
+<button id='delete_all'> DELETE ALL </button>
+<button id='update'> UPDATE </button>
+</div>
+<div class="copy">
+&copy; 2015 by tx0h under the <a href="http://dev.perl.org/licenses/artistic.html">
+perl artistic license</a>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+<script>
+function get_form_arr() {
+    var array = [];
+    $('tr').each(function() {
+        if($(this).find('td:eq(0) input').val()) {
+            alert($(this).find('td:eq(2) input:checked').val());
+            array.push({
+                label: $(this).find('td:eq(0) input').val(),
+                io: $(this).find('td:eq(1) input').val(),
+                toggle: ($(this).find('td:eq(2) input:checked').val()=='on')?1:0,
+            });
+        }
+    });
+    return(array);
+}
+
+function edit_cell(cell) {
+    var name = $(cell).attr('class');
+    var val = $(cell).text();
+    if(name=='toggle') {
+        var checked = '';
+        if(val == 'ON') {
+            val = 1;
+            checked='checked';
+        } else {
+            val = 0;
+        }
+        $(cell).html('<input type="checkbox" name="'+name+'" value="'+val+'" '+checked+'>');
+    } else {
+        $(cell).html('<input type="text" name="'+name+'" value="'+val+'">');
+    }
+}
+
+function update_table() {
+    $.ajax({
+        url: $('form').attr('action'),
+        method: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            $('tr.gen').remove();
+            var rows = $('#gpio_tab tr').length;
+            $.each(data, function(i, h) {
+                var toggle;
+                (h['toggle'] == 1) ? toggle = 'ON' : toggle = 'OFF';
+                $('#gpio_tab tr:last').after(
+                    '<tr id="'+ rows +'" class="gen">'
+                    + '<td class="label"><input type="hidden" name="label" value="'+h['label']+'">' +h['label']+ '</td>'
+                    + '<td class="io"><input type="hidden" name="io" value="'+h['io']+'">' +h['io']+ '</td>'
+                    + '<td class="toggle"><input type="hidden" name="toggle" value="'+h['toggle']+'">' +toggle+ '</td>'
+                    + '</tr>'
+                );
+                rows++;           
+            });
+            $('td').click(function() {
+                edit_cell(this);
+            });
+        },
+        error: function(xhr, err, status) {
+                    //alert(status);
+                    update_table();
+        },
+    });
+}
+
+function new_row() {
+    var rows = $('#gpio_tab tr').length;
+    $('#gpio_tab tr:last').after(
+        '<tr id="'+ rows +'" class="gen">'
+        + '<td><input type="text" name="gpio_name" placeholder="gpio label"></td>'
+        + '<td><input type="text" name="io" placeholder="io port"></td>'
+        + '<td><input type="checkbox" name="toggle" value="on"></td>'
+        + '</tr>'
+    );
+}
+
+$(document).ready(function() {
+    $('#form').submit(function() { return(false); } );
+    $('#update').click(function() { update_table(); } );
+
+    $('#submit').click(function() {
+        var array = get_form_arr();
+        console.log(array);
+        $.ajax({
+            url: $('form').attr('action'),
+            method: 'POST',
+            data: { 'gpios': JSON.stringify(array) },
+            dataType: 'json',
+            success: function(data) {
+                alert(data);
+                update_table();
+            },
+            error: function(xhr, err, status) {
+                alert(status);
+            },
+        });
+        return(false);
+    });
+    $('#delete_all').click(function() {
+        $.ajax({
+            url: $('form').attr('action'),
+            method: 'DELETE',
+            success: function(data) {
+                alert(data);
+            },
+            error: function(xhr, err, status) {
+                alert(status);
+            },
+        });
+        return(false);
+    });
+
+    $('#add_gpio').click(function() {
+        new_row();
+    });
+
+    update_table();
+});
+</script>
+</body>
+
+</html>

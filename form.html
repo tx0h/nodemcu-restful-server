@@ -1,0 +1,66 @@
+<html>
+<head>
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+</head>
+<body>
+<div style="background: #ccc;">
+    <div style="max-width:148px;">
+        <img width="128" src="luadown.png">
+    </div>
+    <div style="margin-left:148px; margin-top:-103px;">
+        <span><h1><i>Hello world!</i></h1></span>
+        <span><h3>Welcome to <b>restful-server</b>, a nodemcu based service.</h3></span>
+    </div>
+</div>
+<div style="max-width:876px; margin-left:148px">
+<form id="form" action="/rest?direct=argument">
+<input type="text" name="feld1" value="bla">
+<p>
+<input type="hidden" name="feld2" value="fasel">
+<select name="feld3">
+<option value="fusel" selected>fusel
+<option value="foo" selected>foo
+<option value="bar" selected>bar
+</select>
+<p>
+<label><input type="radio" name="method" value="POST" checked> POST</label>
+<label> <input type="radio" name="method" value="GET"> GET</label>
+<label> <input type="radio" name="method" value="DELETE"> DELETE</label>
+<label> <input type="radio" name="method" value="PUT"> PUT</label>
+<p>
+<textarea name="huestel">hdhsfk hkshfd
+weuriuroew
+</textarea>
+<p>
+<input type="submit" name="button" value="done">
+<input type="hidden" name="feld2" value="fasel">
+</form>
+</div>
+<div class="copy">
+&copy; 2015 by tx0h under the <a href="http://dev.perl.org/licenses/artistic.html">
+perl artistic license</a>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#form').submit(function() {
+        $.ajax({
+            url: $('form').attr('action'),
+            method: $('input[name=method]:checked', '#form').val(),
+            data: $('#form').serialize(),
+            dataType: 'html',
+            success: function(data) {
+                alert(data);
+            },
+            error: function(x,e,s) {
+                alert(s);
+            },
+        });
+        return(false);
+    });
+});
+</script>
+</body>
+<link rel="stylesheet" href="style.css">
+</html>
