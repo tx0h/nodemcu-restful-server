@@ -11,6 +11,7 @@ if(payload) then
     content['payload'] = cjson.decode(payload)
 end
 
+--[[
 function open_file(filename, mode)
     if(g_fileFree) then
         g_fileFree = false
@@ -30,6 +31,7 @@ function close_file()
     file.close()
     g_fileFree = true
 end
+]]
 
 if(verb == 'GET') then
     local line

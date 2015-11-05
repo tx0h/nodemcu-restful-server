@@ -1,3 +1,29 @@
+function open_file(filename, mode)
+    if(g_fileFree) then
+        g_fileFree = false
+        lastfile = filename
+        lastmode = mode
+
+        if(file.open(filename, mode)) then
+            return 0
+        else
+            g_fileFree = true
+            lastfile = nil
+            lastmode = nil
+            return -1
+        end
+    else
+        return -2
+    end
+end
+
+function close_file()
+    file.close()
+    g_fileFree = true
+    lastfile = nil
+    lastmode = nil
+end
+
 function urldecode(s)
     s = s:gsub('+', ' '):gsub('%%(%x%x)',
         function(h)
@@ -35,13 +61,15 @@ function check_suffix(str, suffixes)
 end
 
 function file_exists(filename)
-    return true;
+    return true
+    --[[
     if(not file.open(filename, 'r')) then
-        file.close()
+        close_file()
         return false
     end
-    file.close()
+    close_file()
     return true
+    ]]
 end
         
 function get_payload(request)
@@ -152,6 +180,7 @@ function get_payload(request)
         if(not file_exists(resource..'.lua')) then
             return '404 RESOURCE not found', 'text/plain'
         end
+
         local rest = loadfile(resource .. '.lua')
         if(payload ~= nil) then
             return rest(verb, id, cjson.encode(parseurl(payload)))
@@ -165,13 +194,12 @@ end
 
 
 function send_file(conn)
-    local chunk=file.read(768)
+    local chunk=file.read(1370)
     if chunk then
         conn:send(chunk)
     else
-        file.close()
+        close_file()
         tmr.stop(0)
-        g_fileFree = true
         conn:on('sent', function () end);
         conn:close()
     end
@@ -179,45 +207,51 @@ function send_file(conn)
     collectgarbage()
 end
 
-function send_header(conn, status, mime)
-    conn:send('HTTP/1.1 '..status..'\r\n')
-    conn:send('Content-Type: '..mime..'\r\n')
-    conn:send("Connection: close\r\n\r\n")
+function send_header(conn, status, mime, static)
+    conn:send('HTTP/1.1 '..status..'\n')
+    conn:send('Content-Type: '..mime..'\n')
+    if(static) then
+        conn:send('Expires: Wed, 31 Dec 2035 00:00:00 GMT\n')
+    end
+    conn:send("Connection: close\n\n")
 end
 
 function answer_request(conn, request)
     local payload, mime, verb = get_payload(request)
-    
     if(verb == 'GET' and mime ~= 'text/plain') then
-        if(g_fileFree) then
-            g_fileFree = false
-            if(file.open(payload,'r')) then
-                send_header(conn, '200 OK', mime)
-                tmr.alarm(0, 500, 1,
-                    function()
-                        pos = file.seek('cur')
-                        if(not pos or old_pos == pos or old_pos == -23) then
-                            old_pos = -23
-                            g_fileFree=true
-                        else
-                            old_pos = pos
-                        end
+	    local filestatus = open_file(payload, 'r')
+        if(filestatus == 0) then
+            send_header(conn, '200 OK', mime, true)
+            tmr.alarm(0, 1000, 1,
+                function()
+                    if(not lastfile) then
+                        file.close()
+                        return
                     end
-
-                )
-                conn:on('sent',
-                    function ()
-                        send_file(conn)
+                    g_fileOpen = true
+                    open_file(lastfile, lastmode)
+                    pos = file.seek('cur')
+                    if(not pos or old_pos == pos or old_pos == -23) then
+                        old_pos = -23
+print('forced close')
+                        close_file()
+                    else
+                        old_pos = pos
                     end
-                )
-            else
-                g_fileFree = true
-                send_header(conn, '403 File not found', 'text/plain')
-                conn:send('403 File not found\r\n')
-                conn:close()
-            end
-        else
-            conn:send('HTTP/1.1 302 Found\r\nLocation: http://192.168.23.216/'..payload..'\r\n\r\n')   
+                end
+            )
+            conn:on('sent',
+                function ()
+                    send_file(conn)
+                end
+            )
+        elseif(filestatus == -1) then
+            close_file()
+            send_header(conn, '403 File not found', 'text/plain')
+            conn:send('403 File not found\r\n')
+            conn:close()
+        elseif(filestatus == -2) then
+            conn:send('HTTP/1.1 302 Found\nLocation: /'..payload..'\n\n')
             conn:close()
         end
     else
@@ -235,7 +269,7 @@ if(srv) then
     srv:close()
 end
 g_fileFree = true
-srv=net.createServer(net.TCP, 33) 
+srv=net.createServer(net.TCP, 33)
 srv:listen(80,
     function(conn)
         conn:on("receive",
@@ -246,7 +280,6 @@ srv:listen(80,
         conn:on("disconnection",
             function()
                 collectgarbage()
-                print('disconnection heap='..node.heap())
             end
         )
     end
