@@ -90,7 +90,7 @@ function get_payload(request)
         end
     end
 
-    if(verb == 'POST') then
+    if(verb == 'POST' or verb == 'PUT') then
         if(payload) then
             payload = tarr[#tarr]..'&'..payload
         else
@@ -233,7 +233,7 @@ function answer_request(conn, request)
                     pos = file.seek('cur')
                     if(not pos or old_pos == pos or old_pos == -23) then
                         old_pos = -23
-print('forced close')
+print('forced close '..lastfile)
                         close_file()
                     else
                         old_pos = pos
