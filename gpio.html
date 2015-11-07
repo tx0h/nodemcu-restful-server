@@ -34,16 +34,16 @@ perl artistic license</a>
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+
 <script>
 function get_form_arr() {
     var array = [];
     $('tr').each(function() {
         if($(this).find('td:eq(0) input').val()) {
-            alert($(this).find('td:eq(2) input:checked').val());
             array.push({
                 label: $(this).find('td:eq(0) input').val(),
                 io: $(this).find('td:eq(1) input').val(),
-                toggle: ($(this).find('td:eq(2) input:checked').val()=='on')?1:0,
+                toggle: $(this).find('td:eq(2) input').val(),
             });
         }
     });
@@ -51,22 +51,46 @@ function get_form_arr() {
 }
 
 function edit_cell(cell) {
-    var name = $(cell).attr('class');
-    var val = $(cell).text();
-    if(name=='toggle') {
-        var checked = '';
-        if(val == 'ON') {
-            val = 1;
-            checked='checked';
-        } else {
-            val = 0;
+    console.log(cell, this);
+
+    if($(cell).hasClass('inedit')) {
+        $(cell).removeClass('inedit').addClass('editable');
+        var val = $(cell).find('input').hide().val();
+        if($(cell).hasClass('toggle')) {
+            if($(cell.firstChild).prop('checked')) {
+                $(cell.firstChild).val('1')
+                val='ON';
+            } else {
+                $(cell.firstChild).val('0')
+                val='OFF';
+            }
         }
-        $(cell).html('<input type="checkbox" name="'+name+'" value="'+val+'" '+checked+'>');
+        $(cell).find('div').text(val).show();
+        var array = [];
+        array.push({
+            label: $(cell.parentNode).find('td:eq(0) input').val(),
+            io: $(cell.parentNode).find('td:eq(1) input').val(),
+            toggle: $(cell.parentNode).find('td:eq(2) input').val()*1,
+        });
+        var id = $(cell.parentNode).attr('id');
+        $.ajax({
+            url: $('form').attr('action')+'/'+id,
+            method: 'PUT',
+            data: { 'gpio': JSON.stringify(array) },
+            dataType: 'json',
+            success: function(data) {
+                // alert(data);
+            },
+            error: function(xhr, err, status) {
+                // alert(status);
+            },
+        });        
     } else {
-        $(cell).html('<input type="text" name="'+name+'" value="'+val+'">');
+        $(cell).addClass('inedit').removeClass('editable');
+        $(cell).find('input').show().focus();
+        $(cell).find('div').hide();
     }
 }
-
 function update_table() {
     $.ajax({
         url: $('form').attr('action'),
@@ -80,20 +104,20 @@ function update_table() {
                 (h['toggle'] == 1) ? toggle = 'ON' : toggle = 'OFF';
                 $('#gpio_tab tr:last').after(
                     '<tr id="'+ rows +'" class="gen">'
-                    + '<td class="label"><input type="hidden" name="label" value="'+h['label']+'">' +h['label']+ '</td>'
-                    + '<td class="io"><input type="hidden" name="io" value="'+h['io']+'">' +h['io']+ '</td>'
-                    + '<td class="toggle"><input type="hidden" name="toggle" value="'+h['toggle']+'">' +toggle+ '</td>'
+                    + '<td class="label editable"><input type="text" name="label" value="'+h['label']+'"><div>' +h['label']+ '</div></td>'
+                    + '<td class="io editable"><input type="text" name="io" value="'+h['io']+'"><div>' +h['io']+ '</div></td>'
+                    + '<td class="toggle editable"><input type="checkbox" name="toggle" value="'+h['toggle']+'"><div>' +toggle+ '</div></td>'
                     + '</tr>'
                 );
-                rows++;           
+                rows++;
+                $('#gpio_tab tr:last').find('input').hide();
             });
-            $('td').click(function() {
+            $('td.editable').click(function() {
                 edit_cell(this);
             });
         },
         error: function(xhr, err, status) {
-                    //alert(status);
-                    update_table();
+            update_table();
         },
     });
 }
@@ -122,11 +146,11 @@ $(document).ready(function() {
             data: { 'gpios': JSON.stringify(array) },
             dataType: 'json',
             success: function(data) {
-                alert(data);
+                // alert(data);
                 update_table();
             },
             error: function(xhr, err, status) {
-                alert(status);
+                // alert(status);
             },
         });
         return(false);
@@ -136,10 +160,10 @@ $(document).ready(function() {
             url: $('form').attr('action'),
             method: 'DELETE',
             success: function(data) {
-                alert(data);
+                // alert(data);
             },
             error: function(xhr, err, status) {
-                alert(status);
+                // alert(status);
             },
         });
         return(false);
@@ -149,6 +173,7 @@ $(document).ready(function() {
         new_row();
     });
 
+    $('td.editable').on('click', edit_cell);
     update_table();
 });
 </script>

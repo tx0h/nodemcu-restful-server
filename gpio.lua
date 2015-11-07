@@ -11,28 +11,6 @@ if(payload) then
     content['payload'] = cjson.decode(payload)
 end
 
---[[
-function open_file(filename, mode)
-    if(g_fileFree) then
-        g_fileFree = false
-        if(file.open(filename, mode)) then
-            return 0
-        else
-            g_fileFree = true
-            return -1
-        end
-    else
-        g_fileFree = true
-        return -2
-    end
-end
-
-function close_file()
-    file.close()
-    g_fileFree = true
-end
-]]
-
 if(verb == 'GET') then
     local line
     local fs = open_file('gpio.json', 'r')
@@ -68,6 +46,28 @@ if(verb == 'POST') then
 
     print('old: '..cjson.encode(old_gpios))
     print('new: '..content)
+end
+
+if(verb == 'PUT') then
+    local gpio = cjson.decode(tostring(content['payload']['gpio']))
+    local line
+    
+    local fs = open_file('gpio.json', 'r')
+    if(fs < 0) then
+        if(fs == -2) then
+            return '203 RESOURCE not available', 'plain/text'
+        end
+        return '403 RESOURCE cannot open', 'plain/text'
+    end
+    line = file.readline()
+    close_file()
+    
+    local update_gpios = cjson.decode(line)
+    update_gpios[content['id']*1] = gpio[1]
+
+    open_file('gpio.json', 'w+')
+    file.writeline(cjson.encode(update_gpios))
+    close_file()
 end
 
 return cjson.encode(content), 'application/json'
