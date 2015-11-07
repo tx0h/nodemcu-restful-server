@@ -6,3 +6,6 @@ h1>i{font-family:sans-serif;}
 i{font-family:fixed;font-weight:bold;}
 ol{list-style-type: lower-alpha;}
 div.copy{-ms-transform: rotate(270deg);-webkit-transform: rotate(270deg);transform: rotate(270deg); margin-left:-180px;margin-top:-230px;padding:0px;width:400px;font-size:9px;} 
+div#nav{position:absolute;max-width:100px;top:113px;left:28px;}
+div#nav>ul{list-style-type: none;}
+a{color:#270;font-family:fixed;font-weight:bold;text-decoration: none;}
