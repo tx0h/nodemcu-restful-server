@@ -13,27 +13,28 @@
     </div>
 </div>
 <div style="max-width:876px; margin-left:148px">
-<form id="form" action="/rest?direct=argument">
-<input type="text" name="feld1" value="bla">
+<form id="form" action="/rest?urlarg=value">
+<input type="hidden" name="hidden" value="meep, meep.">
+text: <input type="text" name="text" value="blah">
 <p>
-<input type="hidden" name="feld2" value="fasel">
-<select name="feld3">
-<option value="fusel" selected>fusel
+select: <select name="select">
 <option value="foo" selected>foo
-<option value="bar" selected>bar
+<option value="bar">bar
 </select>
 <p>
+method: 
 <label><input type="radio" name="method" value="POST" checked> POST</label>
 <label> <input type="radio" name="method" value="GET"> GET</label>
 <label> <input type="radio" name="method" value="DELETE"> DELETE</label>
 <label> <input type="radio" name="method" value="PUT"> PUT</label>
 <p>
-<textarea name="huestel">hdhsfk hkshfd
-weuriuroew
+textarea<br>
+<textarea name="textarea" rows="5">multi
+line
+example
 </textarea>
 <p>
 <input type="submit" name="button" value="done">
-<input type="hidden" name="feld2" value="fasel">
 </form>
 </div>
 <div class="copy">
@@ -44,8 +45,8 @@ perl artistic license</a>
 <div id="nav">
 <ul>
 <li><a href="/">HOME</a></li>
-<li><a href="/form.html">&nbsp;&nbsp;/form</a></li>
-<li><a href="/gpio.html">&nbsp;&nbsp;/gpio</a></li>
+<li><a href="/rest.html">/rest</a></li>
+<li><a href="/gpio.html">/gpio</a></li>
 </ul>
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>

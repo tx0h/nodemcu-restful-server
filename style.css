@@ -6,6 +6,7 @@ h1>i{font-family:sans-serif;}
 i{font-family:fixed;font-weight:bold;}
 ol{list-style-type: lower-alpha;}
 div.copy{-ms-transform: rotate(270deg);-webkit-transform: rotate(270deg);transform: rotate(270deg); margin-left:-180px;margin-top:-230px;padding:0px;width:400px;font-size:9px;} 
-div#nav{position:absolute;max-width:100px;top:113px;left:28px;}
+div#nav{position:absolute;max-width:120px;top:110px;left:10px;padding-top:3px;text-align:right;border-right:2px;border-color:#000;border-right-style:solid;}
 div#nav>ul{list-style-type: none;}
-a{color:#270;font-family:fixed;font-weight:bold;text-decoration: none;}
+div#nav>ul>li{padding-bottom:1.5em;}
+a{color:#150;text-decoration: none;background:#000;color:#fff;font-weight:bold;padding-left:1em;padding-right:0.3em;}
