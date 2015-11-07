@@ -12,9 +12,7 @@ Flash your esp8266 module with the nodemcu firmware and upload these files:
  * gpio.json
  * gpio.lua
  * index.html
- * LICENSE
  * luadown.png
- * README.md
  * restful-server.lua
  * rest.html
  * rest.lua
