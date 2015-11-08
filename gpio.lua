@@ -22,7 +22,7 @@ if(verb == 'GET') then
     end
     line = file.readline()
     close_file()
-    return line, 'application/json'
+    return line, 'application/json', nil
 end
 
 if(verb == 'POST') then
@@ -43,9 +43,6 @@ if(verb == 'POST') then
     open_file('gpio.json', 'w+')
     file.writeline(content)
     close_file()
-
-    print('old: '..cjson.encode(old_gpios))
-    print('new: '..content)
 end
 
 if(verb == 'PUT') then

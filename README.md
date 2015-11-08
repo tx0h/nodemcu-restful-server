@@ -8,6 +8,8 @@ INSTALL
 
 Flash your esp8266 module with the nodemcu firmware and upload these files:
 
+ * answer_request.lua
+ * get_payload.lua
  * gpio.html
  * gpio.json
  * gpio.lua
@@ -18,7 +20,7 @@ Flash your esp8266 module with the nodemcu firmware and upload these files:
  * rest.lua
  * style.css
 
-Afterwards compile the restful-server.lua and run restful-server.lc. This will leave about 22Kb of heap memory. The other lua modules define the restful resources. To handle a restful services the resource module, a lua script, get loaded. This resource modules, loaded via loadfile, receive the HTTP verb (GET, POST, PUT and DELETE) as first argument, the second argument is the ID of an element of the resource based set. The third argument may be the payload passed via URL argument or passed via PUT or POST body. The resource module returns a payload and the mime type of the payload.
+Afterwards node.compile the files restful-server.lua, answer_request.lua and get_payload.lua, after that run restful-server.lc. This will leave about 30Kb of heap memory. The other lua modules define the restful resources. To handle a restful services the resource module, a lua script, get loaded. This resource modules, loaded via loadfile, receive the HTTP verb (GET, POST, PUT and DELETE) as first argument, the second argument is the ID of an element of the resource based set. The third argument may be the payload passed via URL argument or passed via PUT or POST body. The resource module returns a payload and the mime type of the payload.
 
 GENERAL
 -------
